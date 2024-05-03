@@ -1,4 +1,3 @@
-import * as React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -11,12 +10,12 @@ import { Logout } from '@mui/icons-material'
 import KeyIcon from '@mui/icons-material/Key'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-// import { logout } from '../../../redux/reducers'
-import { getLocalStorage, setLocalStorage } from '../../utils/localStorage'
+import { useDispatch, useSelector } from 'react-redux'
 import styles from './Header.module.css'
-// import DialogChangePassword from '../../Dialog/ChangePasword/DialogChangePassword'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { logout } from '../../redux/reducers'
+import { RootState } from '../../redux/store'
+import { BACKGROUND_IMAGE } from '../../constants'
 
 const Header: React.FC = () => {
   const dispatch = useDispatch()
@@ -24,11 +23,11 @@ const Header: React.FC = () => {
   const location = useLocation()
   const pathSegments = location.pathname.split('/').filter((segment) => segment !== '')
   const [openPassword, setOpenPassword] = useState(false)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [userInfo, setUserInfo] = React.useState<any>(null)
-  const [hasScrolled, setHasScrolled] = React.useState(false)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [hasScrolled, setHasScrolled] = useState(false)
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 0
       setHasScrolled(scrolled)
@@ -36,13 +35,6 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    const storedUserInfo = getLocalStorage('user')
-    if (storedUserInfo) {
-      setUserInfo(storedUserInfo)
     }
   }, [])
 
@@ -57,10 +49,7 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     setAnchorEl(null)
-    // dispatch(logout())
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('userRole')
-    localStorage.removeItem('user')
+    dispatch(logout())
     navigate('/login')
   }
 
@@ -128,17 +117,11 @@ const Header: React.FC = () => {
               }}
             >
               <Box className={styles['profile-pictures-wrapper']}>
-                <Avatar
-                  alt="profile-background"
-                  src={`https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`}
-                  className={styles['profile-background']}
-                />
+                <Avatar alt="profile-background" src={BACKGROUND_IMAGE} className={styles['profile-background']} />
                 <Avatar alt="profile-avatar" src={''} className={styles['profile-avatar']} />
               </Box>
               <MenuItem className={styles['menu-info-item']} onClick={handleClose} disabled>
-                <Typography className={styles['username']}>
-                  {userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : 'Guest'}
-                </Typography>
+                <Typography className={styles['username']}>{userInfo ? `${userInfo.name}` : 'Guest'}</Typography>
               </MenuItem>
               <Divider className={styles['menu-divider']} />
               <MenuItem className={styles['menu-list-item']} onClick={handleChangePassword}>

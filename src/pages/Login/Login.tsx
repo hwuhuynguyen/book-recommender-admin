@@ -6,7 +6,6 @@ import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/ico
 import styles from './Login.module.css'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { setLocalStorage } from '../../utils/localStorage'
 import { AuthApi, SelfApi } from '../../services'
 import { setHeaderConfigAxios } from '../../services/config'
 import { setCredentials, setUserInfo } from '../../redux/reducers'
@@ -29,10 +28,6 @@ const Login: React.FC = () => {
           dispatch(setCredentials(response.data))
           dispatch(setUserInfo(userInfo.data))
           navigate('/dashboard', { replace: true })
-          setLocalStorage('user', JSON.stringify(userInfo.data))
-          setLocalStorage('userRole', userInfo.data?.role?.type)
-          setLocalStorage('access_token', response.data.access_token)
-          setLocalStorage('refresh_token', response.data.refresh_token)
         } else {
           navigate('/', { replace: true })
         }

@@ -8,21 +8,13 @@ import { Login } from '../pages/Login'
 import { NotFound } from '../pages/NotFound'
 import DashboardLayout from '../layouts/Dashboard'
 import SettingLayout from '../layouts/Settings'
-
-const getDefaultRedirectPath = () => {
-  const storedRole = localStorage.getItem('userRole')
-  const isAdmin = storedRole === 'ADMIN'
-  if (isAdmin) {
-    return '/dashboard'
-  } else {
-    return '/login'
-  }
-}
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
 
 const LoginWrapper = () => {
-  const token = localStorage.getItem('access_token')
-  if (token) {
-    return <Navigate to={getDefaultRedirectPath()} replace={true} />
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken)
+  if (accessToken) {
+    return <Navigate to={'/dashboard'} replace={true} />
   }
   return <Login />
 }
@@ -34,7 +26,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         path: '/',
-        element: <Navigate to={getDefaultRedirectPath()} replace={true} />
+        element: <Navigate to={'/dashboard'} replace={true} />
       },
       {
         path: 'dashboard',

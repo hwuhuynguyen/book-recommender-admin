@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import List from '@mui/material/List'
@@ -23,12 +23,6 @@ type SidebarProps = {
 function Sidebar({ onToggleCollapse }: SidebarProps) {
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
-  const [userRole, setUserRole] = useState('')
-
-  useEffect(() => {
-    const role = localStorage.getItem('userRole')
-    setUserRole(role || '')
-  }, [])
 
   const handleToggleCollapse = () => {
     setCollapsed(!collapsed)

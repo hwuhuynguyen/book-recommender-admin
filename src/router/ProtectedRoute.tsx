@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react'
+import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
+import { RootState } from '../redux/store'
 
 type ProtectedRouteProps = {
   element: ReactNode
@@ -7,8 +9,8 @@ type ProtectedRouteProps = {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element, allowedRoles }) => {
-  const userRole = localStorage.getItem('userRole')
-  const isLoggedIn = !!localStorage.getItem('access_token')
+  const userRole = useSelector((state: RootState) => state.auth.userRole)
+  const isLoggedIn = !!useSelector((state: RootState) => state.auth.accessToken)
   if (!isLoggedIn) {
     return <Navigate to="/login" />
   }

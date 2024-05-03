@@ -2,20 +2,12 @@ import { Box } from '@mui/material'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header/Header'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import withTokenCheck from '../hoc/withTokenCheck'
 import styles from './Template.module.css'
 
 function BaseTemplate() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [userRole, setUserRole] = useState('')
-
-  useEffect(() => {
-    const storedUserRole = localStorage.getItem('userRole')
-    if (storedUserRole) {
-      setUserRole(storedUserRole)
-    }
-  }, [userRole])
 
   const handleSidebarToggle = () => {
     setSidebarCollapsed(!sidebarCollapsed)
