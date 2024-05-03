@@ -7,39 +7,40 @@ import styles from './Login.module.css'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setLocalStorage } from '../../utils/localStorage'
-import { AuthApi } from '../../services'
+import { AuthApi, SelfApi } from '../../services'
+import { setHeaderConfigAxios } from '../../services/config'
+import { setCredentials, setUserInfo } from '../../redux/reducers'
 
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const [error, setError] = useState(false)
   const dispatch = useDispatch()
 
   const handleSubmitForm = async (values: LoginForm, { resetForm }: { resetForm: () => void }) => {
     try {
+      setLoading(true)
       const response = await AuthApi.login(values)
       if (response && response.data && response.data.access_token) {
-        const userInfo = response.data
-        // // dispatch(setCredentials(res.data))
-        // setLocalStorage('user', JSON.stringify(userInfo))
-        // setLocalStorage('userRole', userInfo.role)
-        // if (userInfo.role === 'ADMIN') {
-        //   navigate('/category', { replace: true })
-        // } else if (userInfo.role === 'ORGANIZER') {
-        //   navigate('/tournament', { replace: true })
-        // } else {
-        //   navigate('/', { replace: true })
-        // }
-        //   console.log(res)
-        setLocalStorage('user', JSON.stringify('admin'))
-        setLocalStorage('userRole', 'ADMIN')
-        setLocalStorage('access_token', userInfo.access_token)
-        setLocalStorage('refresh_token', userInfo.refresh_token)
-        navigate('/', { replace: true })
+        setHeaderConfigAxios(response.data.access_token)
+        const userInfo = await SelfApi.getMe()
+        if (userInfo.data?.role?.type === 'ADMIN') {
+          dispatch(setCredentials(response.data))
+          dispatch(setUserInfo(userInfo.data))
+          navigate('/dashboard', { replace: true })
+          setLocalStorage('user', JSON.stringify(userInfo.data))
+          setLocalStorage('userRole', userInfo.data?.role?.type)
+          setLocalStorage('access_token', response.data.access_token)
+          setLocalStorage('refresh_token', response.data.refresh_token)
+        } else {
+          navigate('/', { replace: true })
+        }
       }
     } catch (err) {
       setError(true)
     } finally {
+      setLoading(false)
       resetForm()
       setShowPassword(false)
     }
@@ -127,7 +128,13 @@ const Login: React.FC = () => {
                 />
               </Stack>
               <Stack spacing={2} width={'60vw'} minWidth={100} maxWidth={450}>
-                <Button className={styles['submit-login-btn']} size="large" type="submit" variant="contained">
+                <Button
+                  className={styles['submit-login-btn']}
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                >
                   Login
                 </Button>
               </Stack>
