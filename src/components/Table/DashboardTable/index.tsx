@@ -9,10 +9,10 @@ import {
   TableHead,
   TableRow
 } from '@mui/material'
-import { ColumnTypes } from '../../../types/common'
+import { IColumnTypes } from '../../../types/table.types'
 
 interface DashboardTableProps {
-  columns: ColumnTypes[]
+  columns: IColumnTypes[]
   rows: { [key: string]: any }[]
   loading?: boolean
 }

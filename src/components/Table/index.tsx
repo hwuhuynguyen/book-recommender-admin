@@ -13,14 +13,14 @@ import { TiArrowSortedUp } from 'react-icons/ti'
 import { TiArrowSortedDown } from 'react-icons/ti'
 import { memo, useState, useEffect } from 'react'
 import Paginations from '../Paginations'
-import { ColumnTypes } from '../../types/common'
 import { useSearchParams } from 'react-router-dom'
 import noItem from '../../assets/noItem.png'
 import PersonAddAltSharpIcon from '@mui/icons-material/PersonAddAltSharp'
 import { MdDeleteSweep, MdEditSquare } from 'react-icons/md'
+import { IColumnTypes } from '../../types/table.types'
 
 interface ReusableTableProps {
-  columns: ColumnTypes[]
+  columns: IColumnTypes[]
   rows: { [key: string]: any }[]
   showActions?: boolean
   onOpenPlayerDialog?: (rowData: { [key: string]: any }) => void

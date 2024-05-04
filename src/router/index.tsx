@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import BaseTemplate from '../templates/base.template'
 import ProtectedRoute from './ProtectedRoute'
-import CategoryLayout from '../layouts/Category'
 import UserLayout from '../layouts/User'
 import BookLayout from '../layouts/Book'
 import { Login } from '../pages/Login'
@@ -31,10 +30,6 @@ export const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <ProtectedRoute element={<DashboardLayout />} allowedRoles={['ADMIN']} />
-      },
-      {
-        path: 'category',
-        element: <ProtectedRoute element={<CategoryLayout />} allowedRoles={['ADMIN']} />
       },
       {
         path: 'user',

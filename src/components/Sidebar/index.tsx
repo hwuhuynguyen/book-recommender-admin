@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import List from '@mui/material/List'
@@ -9,7 +9,6 @@ import ReorderIcon from '@mui/icons-material/Reorder'
 import SortIcon from '@mui/icons-material/Sort'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
 import GroupIcon from '@mui/icons-material/Group'
-import CategoryIcon from '@mui/icons-material/Category'
 import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { IconButton } from '@mui/material'
@@ -87,35 +86,6 @@ function Sidebar({ onToggleCollapse }: SidebarProps) {
                 <Dashboard />
               </ListItemIcon>
               {!collapsed && <ListItemText className={styles['text-menu']} primary="Dashboard" />}
-            </ListItem>
-          </Link>
-
-          <Link to={{ pathname: '/category', search: '?page=1' }}>
-            <ListItem
-              className={styles['list-item']}
-              button
-              selected={location.pathname === '/category'}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'white',
-                  borderRadius: '10px',
-                  '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
-                    color: 'black'
-                  },
-                  '&:hover': {
-                    opacity: 0.9,
-                    backgroundColor: 'white'
-                  }
-                },
-                '&:hover': {
-                  opacity: 0.7
-                }
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <CategoryIcon />
-              </ListItemIcon>
-              {!collapsed && <ListItemText className={styles['text-menu']} primary="Category" />}
             </ListItem>
           </Link>
 
