@@ -1,19 +1,31 @@
 import instance from './../config'
 
-const getBooks = (page?: number, per_page?: number) => {
-  return instance.get('/links', {
-    params: {
-      page,
-      per_page
-    }
+type BookSearchType = {
+  page: number
+  perPage: number
+  search?: string
+  languages?: string
+  price?: string
+  averageRating?: string
+  order?: string
+}
+
+const getBooks = (params: BookSearchType) => {
+  return instance.get('/books', {
+    params: params
   })
 }
 
 const getBookById = (id: string) => {
-  return instance.get(`/links/${id}`)
+  return instance.get(`/books/${id}`)
+}
+
+const deleteBookById = (id: string) => {
+  return instance.delete(`/books/${id}`)
 }
 
 export const BookApi = {
   getBooks,
-  getBookById
+  getBookById,
+  deleteBookById
 }
