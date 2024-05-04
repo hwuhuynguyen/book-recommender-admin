@@ -29,7 +29,7 @@ interface ReusableTableProps {
   handleColumnSort?: (id: any, status: 'asc' | 'desc' | '') => void
   total: number
   handlePageSearch?: (page: number) => void
-  totalCurrentPage?: number
+  totalItemsOnCurrentPage?: number
   loading?: boolean
   isAdded?: boolean
   hidePagination?: boolean
@@ -45,7 +45,7 @@ const ReusableTable = ({
   handleColumnSort,
   total,
   handlePageSearch,
-  totalCurrentPage,
+  totalItemsOnCurrentPage,
   loading,
   isAdded,
   hidePagination = true
@@ -55,11 +55,6 @@ const ReusableTable = ({
   )
   const [params] = useSearchParams()
   const myPage = params.get('page')
-  const totalIndex = totalCurrentPage
-    ? totalCurrentPage < 10
-      ? totalCurrentPage - totalCurrentPage + 10
-      : totalCurrentPage
-    : 0
 
   const handleSortTableClick = (id: any) => {
     const currentSortType = sortStates[id]
@@ -238,7 +233,7 @@ const ReusableTable = ({
                       }}
                     >
                       {Object.values(column).indexOf('Id') > -1 ? (
-                        (Number(myPage) > 1 ? Number(myPage) - 1 : 0) * totalIndex + rowIndex + 1
+                        (Number(myPage) > 1 ? Number(myPage) - 1 : 0) * 10 + rowIndex + 1
                       ) : (
                         <Tooltip
                           title={`${

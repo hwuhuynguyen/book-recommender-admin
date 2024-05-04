@@ -3,21 +3,19 @@ import withBaseLogic from '../../hoc/withBaseLogic'
 import ReusableTable from '../../components/Table'
 import Input from '../../components/Input'
 import { useCallback, useRef, useState } from 'react'
-import React, { useEffect } from 'react'
-import { OrganizerAPIRes, OrganizerByIdAPIRes, ParamApi } from '../../types/common'
+import { useEffect } from 'react'
 import { createSearchParams, useSearchParams } from 'react-router-dom'
 import useDebounce from '../../hooks/useDebounce'
-import { getAllUsers } from '../../apis/axios/user'
 import { toast } from 'react-toastify'
-import { DialogAddOrganizer } from '../../components/Dialog/User/AddUser'
-import { useDispatch, useSelector } from 'react-redux'
-import { setOrganizer, setSelectedOrganizer } from '../../redux/reducers/organizers/organizers.reducer'
+import { DialogAddUser } from '../../components/Dialog/User/AddUser'
 import dayjs from 'dayjs'
-import { DialogEditOrganizer } from '../../components/Dialog/User/EditUser'
 import { CommonDeleteDialog } from '../../components/Dialog/DeleteDialog/CommonDeleteDialog'
-import { mockDataUsers } from '../../data/user'
+import { removeEmptyFields } from '../../utils/function'
+import { UserApi } from '../../services'
+import { IUser } from '../../types/user.types'
+import { DialogEditUser } from '../../components/Dialog/User/EditUser'
 
-const Organizers = ({ navigate, location }: any) => {
+const UserLayout = ({ navigate, location }: any) => {
   const columns = [
     {
       id: 'Id',
@@ -31,13 +29,24 @@ const Organizers = ({ navigate, location }: any) => {
       }
     },
     {
-      id: 'fullName',
+      id: 'name',
       sortTable: true,
-      label: 'Full Name',
-      sortBy: 'fullName',
+      label: 'Name',
+      sortBy: 'name',
       left: false,
       style: {
-        filed: 'fullName',
+        filed: 'name',
+        width: '500px'
+      }
+    },
+    {
+      id: 'gender',
+      sortTable: false,
+      label: 'Gender',
+      sortBy: 'gender',
+      left: false,
+      style: {
+        filed: 'gender',
         width: '500px'
       }
     },
@@ -65,45 +74,51 @@ const Organizers = ({ navigate, location }: any) => {
     }
   ]
 
-  const [searchText, setSearchText] = useState<string | ''>('')
-  const [sortType, setSortType] = useState<'asc' | 'desc' | ''>('')
   const [params] = useSearchParams()
   const pageURL = Number(params.get('page'))
-  const [sortValue, setSortValue] = useState<string | ''>('')
-  const organizers = useSelector((state: any) => state.organizer.organizers)
-  const [totalOrganizer, setTotalOrganizer] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(pageURL | 1)
 
-  const [totalCurrentPage, setTotalCurrentPage] = useState<number>(0)
+  const [searchText, setSearchText] = useState<string | ''>('')
+  const [sortType, setSortType] = useState<'asc' | 'desc' | ''>('')
+  const [sortValue, setSortValue] = useState<string | ''>('')
+
+  const [users, setUsers] = useState<IUser[]>([])
+  const [totalUsers, setTotalUsers] = useState<number>(0)
+
+  const [totalItemsOnCurrentPage, setTotalItemsOnCurrentPage] = useState<number>(0)
+
   const [loading, setLoading] = useState<boolean>(true)
   const [update, setUpdate] = useState<boolean>(false)
   const [isAdded, setIsAdded] = useState(false)
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
+
+  const [selectedUser, setSelectedUser] = useState<IUser>()
   const [warningMessage, setWarningMessage] = useState('')
   const [deleteRowData, setDeleteRowData] = useState<{ [key: string]: any }>()
-  const dispatch = useDispatch()
+
   const isSetPageURL = useRef(false)
 
-  // get all organizer from DB
-  const getAll = async (param: ParamApi) => {
-    const getOrganizers = (await getAllUsers(param)) as OrganizerAPIRes
-    if (getOrganizers?.data && getOrganizers?.data.length !== 0) {
-      const formattedData = getOrganizers?.data.map((e) => {
+  const getAll = useCallback(async (parameter: any) => {
+    const response = await UserApi.getUsers(parameter)
+
+    if (response?.data.data && response?.data.data.length !== 0) {
+      const formattedData = response?.data?.data.map((e: IUser) => {
         return {
           ...e,
-          createdAt: dayjs(e.createdAt).format('DD/MM/YYYY hh:mm:ss A'),
-          dateOfBirth: e.dateOfBirth ? dayjs(e.dateOfBirth).format('DD/MM/YYYY') : ''
+          dateOfBirth: e.dob ? dayjs(e.dob).format('DD/MM/YYYY') : ''
         }
       })
-      dispatch(setOrganizer([...formattedData]))
+      setUsers(formattedData)
+      setTotalItemsOnCurrentPage(formattedData.length)
     } else {
-      dispatch(setOrganizer([...mockDataUsers]))
+      setUsers([])
+      setTotalItemsOnCurrentPage(0)
     }
-    setTotalCurrentPage(getOrganizers?.total)
-    setTotalOrganizer(getOrganizers?.additionalData?.totalOrganizer)
+    setTotalUsers(response.data.meta.total)
     setLoading(false)
-  }
+  }, [])
 
   const pageSearch = (value: number) => {
     setCurrentPage(() => value)
@@ -111,70 +126,60 @@ const Organizers = ({ navigate, location }: any) => {
     setUpdate((prev) => !prev)
   }
 
-  //delaying the execution of function search
-  const debouceSearch = useDebounce({
+  // Delay the execution of search
+  const debounceSearch = useDebounce({
     value: searchText,
     ms: 800
   })
 
-  const handleEdit = useCallback(
-    async (rowData: { [key: string]: any }) => {
-      // try {
-      //   const selectedOrganizer = (await getOrganizerById(rowData.id)) as OrganizerByIdAPIRes
-      //   dispatch(setSelectedOrganizer(selectedOrganizer.data))
-      //   setIsEditDialogOpen(true)
-      // } catch (err) {
-      //   console.error('Error fetching organizer', err)
-      // }
-    },
-    [dispatch]
-  )
+  const handleEdit = useCallback(async (rowData: { [key: string]: any }) => {
+    try {
+      setSelectedUser(rowData)
+      setIsEditDialogOpen(true)
+    } catch (err) {
+      console.error('Error fetching user', err)
+    }
+  }, [])
 
-  const handleDelete = useCallback(
-    (rowData: { [key: string]: any }) => {
-      const { fullName, email } = rowData //get categoryId
-      setWarningMessage(
-        `Are you sure you want to delete the user with the name <span style="font-weight: 600">'${fullName}</span> (<span style="font-weight: 600">${email}</span>)<span style="font-weight: 600">'</span>?`
-      )
-      try {
-        setIsDeleteDialogOpen(true)
-        setDeleteRowData(rowData)
-      } catch (err) {
-        console.log(err)
-      }
-    },
-    [totalCurrentPage, currentPage, deleteRowData]
-  )
+  const handleDelete = useCallback((rowData: { [key: string]: any }) => {
+    const { name, email } = rowData
+    setWarningMessage(
+      `Are you sure you want to delete the
+         user with the name <span style="font-weight: 600">'${name}</span> 
+         (<span style="font-weight: 600">${email}</span>)<span style="font-weight: 
+         600">'</span>?`
+    )
+    try {
+      setIsDeleteDialogOpen(true)
+      setDeleteRowData(rowData)
+    } catch (err: any) {
+      toast.error(err?.message)
+    }
+  }, [])
 
-  const handleDeleteOrganizer = useCallback(
+  const deleteUser = useCallback(
     async (rowData?: { [key: string]: any }) => {
-      if (rowData) {
-        const { id } = rowData //get categoryId
-        // const res = (await deleteOrganizer(id)) as OrganizerAPIRes
-        // if (res.success) {
-        //   toast.success('An organizer is deleted successfully!')
-        //   if (totalCurrentPage === 1 && currentPage > 1) {
-        //     setCurrentPage((prevPage) => prevPage - 1)
-        //   }
-        //   setUpdate((prev) => !prev)
-        // } else {
-        //   toast.error(res.message)
-        // }
-        // setIsDeleteDialogOpen(false)
+      try {
+        if (rowData) {
+          const { id } = rowData
+          await UserApi.deleteUserById(id)
+          toast.success('An user is deleted successfully!')
+          if (totalItemsOnCurrentPage === 1 && currentPage > 1) {
+            setCurrentPage((prevPage) => prevPage - 1)
+          }
+          setUpdate((prev) => !prev)
+          setIsDeleteDialogOpen(false)
+        }
+      } catch (err: any) {
+        toast.error(err?.message)
       }
     },
-    [totalCurrentPage, currentPage]
+    [totalItemsOnCurrentPage, currentPage]
   )
 
   const handleColumnSort = useCallback((idColumm: any, sortType: 'asc' | 'desc' | '') => {
     setSortType(sortType)
-    if (idColumm === 'createdAt') {
-      setSortValue('created_at')
-    } else if (idColumm === 'phoneNumber') {
-      setSortValue('phone_number')
-    } else {
-      setSortValue(idColumm)
-    }
+    setSortValue(idColumm)
     setUpdate((prev) => !prev)
   }, [])
 
@@ -186,34 +191,24 @@ const Organizers = ({ navigate, location }: any) => {
   }, [pageURL])
 
   useEffect(() => {
-    //create URL search params
-    if (debouceSearch) {
-      navigate({
-        pathname: location.pathname,
-        search: createSearchParams({ keyword: searchText, sortType: sortType, page: String(currentPage) }).toString()
-      })
-    } else if (sortType !== '' && sortValue) {
-      navigate({
-        pathname: location.pathname,
-        search: createSearchParams({ sortValue: sortValue, sortType: sortType, page: String(currentPage) }).toString()
-      })
-    } else {
-      navigate({
-        pathname: location.pathname,
-        search: createSearchParams({ page: String(currentPage) }).toString()
-      })
+    setLoading(true)
+    const params = {
+      page: currentPage,
+      search: searchText,
+      order: sortType && sortValue ? `${sortValue}:${sortType}` : ''
     }
 
-    const param: ParamApi = {
-      sortType: sortType,
-      page: currentPage,
-      keyword: searchText,
-      sortValue: sortValue
-    }
-    getAll(param)
-    setLoading(false)
+    removeEmptyFields(params)
+
+    navigate({
+      pathname: location.pathname,
+      search: createSearchParams(JSON.parse(JSON.stringify(params))).toString()
+    })
+
+    getAll({ ...params })
     setIsAdded(false)
-  }, [debouceSearch, update])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, debounceSearch, sortType, sortValue, update, pageURL])
 
   return (
     <Box sx={{ backgroundColor: 'white', padding: '1rem', borderRadius: '1rem', marginTop: '1rem' }}>
@@ -227,8 +222,7 @@ const Organizers = ({ navigate, location }: any) => {
         }}
       >
         <Box sx={{ alignSelf: 'flex-start', marginBottom: '10px' }}>
-          {/* <DialogAddOrganizer
-            addUser={addOrganizer}
+          <DialogAddUser
             onAdd={() => {
               setIsAdded(true)
               setSortType('')
@@ -236,7 +230,7 @@ const Organizers = ({ navigate, location }: any) => {
               setCurrentPage(1)
               setUpdate((prev) => !prev)
             }}
-          /> */}
+          />
         </Box>
         <Box sx={{ alignSelf: 'flex-end' }}>
           <Input
@@ -251,32 +245,35 @@ const Organizers = ({ navigate, location }: any) => {
           />
         </Box>
       </Box>
-      {/* <DialogEditOrganizer
-        editOrganizer={putOrganizerById}
+      <DialogEditUser
+        selectedUser={selectedUser}
         onOpen={isEditDialogOpen}
         onClose={() => {
           setIsEditDialogOpen(false)
         }}
-      /> */}
+        onUpdate={() => {
+          setUpdate((prev) => !prev)
+        }}
+      />
       <CommonDeleteDialog
         onOpen={isDeleteDialogOpen}
         onClose={() => {
           setIsDeleteDialogOpen(false)
         }}
-        onDelete={() => handleDeleteOrganizer(deleteRowData)}
-        title={'Delete Organizer'}
+        onDelete={() => deleteUser(deleteRowData)}
+        title={'Delete user'}
         message={warningMessage}
         deleteBtnText="Yes, delete"
       />
       <ReusableTable
         columns={columns}
-        rows={organizers}
+        rows={users}
         onEdit={handleEdit}
         onDelete={handleDelete}
         handleColumnSort={handleColumnSort}
-        total={totalOrganizer}
+        total={totalUsers}
         handlePageSearch={pageSearch}
-        totalCurrentPage={totalCurrentPage}
+        totalItemsOnCurrentPage={totalItemsOnCurrentPage}
         loading={loading}
         isAdded={isAdded}
       />
@@ -284,4 +281,4 @@ const Organizers = ({ navigate, location }: any) => {
   )
 }
 
-export default withBaseLogic(Organizers)
+export default withBaseLogic(UserLayout)

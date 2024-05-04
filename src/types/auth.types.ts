@@ -1,4 +1,4 @@
-export type IUserData = {
+export interface IUserData {
   id: string
   avatar?: string
   email: string
