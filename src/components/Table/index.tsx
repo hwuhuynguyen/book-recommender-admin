@@ -91,7 +91,7 @@ const ReusableTable = ({
     if (isAdded) {
       setSortStates(Object.fromEntries(columns.map((column) => [column.id, ''])))
     }
-  }, [isAdded])
+  }, [columns, isAdded])
 
   const handlePageChange = (pageNumber: number) => {
     handlePageSearch?.(pageNumber)

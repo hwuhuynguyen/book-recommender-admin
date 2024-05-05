@@ -5,7 +5,7 @@ import { crawlOptions, getMonthValue, timeOptions, weekValue } from '../../const
 const SettingLayout = () => {
   const [type, setType] = useState('week')
   const [autoCrawl, setAutoCrawl] = useState(true)
-  const [timeValue, setTimeValue] = useState(timeOptions('00:00', '23:59', 60))
+  const [timeValue] = useState(() => timeOptions('00:00', '23:59', 60))
 
   const options = useMemo(() => {
     if (type === 'week') {

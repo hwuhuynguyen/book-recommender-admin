@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react'
 import { logout } from '../../redux/reducers'
 import { RootState } from '../../redux/store'
 import { BACKGROUND_IMAGE } from '../../constants'
+import { DialogChangePassword } from '../Dialog/ChangePasword'
 
 const Header: React.FC = () => {
   const dispatch = useDispatch()
@@ -142,7 +143,7 @@ const Header: React.FC = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      {/* <DialogChangePassword open={openPassword} setOpen={setOpenPassword} /> */}
+      <DialogChangePassword open={openPassword} setOpen={setOpenPassword} />
     </>
   )
 }

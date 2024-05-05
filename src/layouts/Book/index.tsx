@@ -125,6 +125,7 @@ const BookLayout = ({ navigate, location }: any) => {
       const formattedData = response?.data?.data.map((e: IBook) => {
         return {
           ...e,
+          author: e.authors?.map((element: any) => element?.author?.name),
           releaseDate: e.releaseDate ? dayjs(e.releaseDate).format('DD/MM/YYYY') : '',
           source: e.source ? e.source.name : ''
         }
