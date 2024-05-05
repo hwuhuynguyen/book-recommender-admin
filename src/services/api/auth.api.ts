@@ -12,7 +12,6 @@ interface LoginResponse {
 }
 
 const login = (data: LoginType) => {
-  console.log(data)
   return instance.post<LoginResponse>('/login/local', data)
 }
 

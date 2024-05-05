@@ -1,19 +1,66 @@
 import { Box, Button, FormControl, MenuItem, Select, SelectChangeEvent, Switch, Typography } from '@mui/material'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { crawlOptions, getMonthValue, timeOptions, weekValue } from '../../constants'
+import { SettingsApi } from '../../services'
+import { toast } from 'react-toastify'
 
 const SettingLayout = () => {
-  const [type, setType] = useState('week')
-  const [autoCrawl, setAutoCrawl] = useState(true)
+  const [autoCrawl, setAutoCrawl] = useState<boolean>(false)
+  const [crawlType, setCrawlType] = useState<string>('')
+  const [crawlDate, setCrawlDate] = useState<string>('')
+  const [crawlTime, setCrawlTime] = useState<string>('')
   const [timeValue] = useState(() => timeOptions('00:00', '23:59', 60))
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const getCrawlSetting = useCallback(async () => {
+    try {
+      const response = await SettingsApi.getCrawlSetting()
+      if (response.data) {
+        setAutoCrawl(true)
+        setCrawlType(response.data.periodType)
+        setCrawlDate(response.data.value)
+        setCrawlTime(response.data.time)
+      } else {
+        setAutoCrawl(false)
+      }
+    } catch (err: any) {
+      toast.error(err?.message)
+    }
+  }, [])
+
+  const handleUpdateSettings = useCallback(() => {
+    const updateCrawlSettings = async () => {
+      setLoading(true)
+      try {
+        const newCrawlSettings = {
+          isAutoCrawl: autoCrawl,
+          periodType: crawlType,
+          value: crawlDate,
+          time: crawlTime
+        }
+        await SettingsApi.updateCrawlSetting(newCrawlSettings)
+        toast.success('Settings have been updated successfully.')
+      } catch (err: any) {
+        toast.error(err?.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    updateCrawlSettings()
+  }, [autoCrawl, crawlDate, crawlTime, crawlType])
+
+  useEffect(() => {
+    getCrawlSetting()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const options = useMemo(() => {
-    if (type === 'week') {
+    if (crawlType === 'WEEK') {
       return weekValue
     } else {
       return getMonthValue()
     }
-  }, [type])
+  }, [crawlType])
 
   return (
     <Box sx={{ backgroundColor: 'white', padding: '1rem', borderRadius: '1rem', marginTop: '1rem' }}>
@@ -32,10 +79,22 @@ const SettingLayout = () => {
       <Box display={'flex'} gap={'1rem'}>
         <FormControl sx={{ width: '50%' }}>
           <Select
-            defaultValue={'week'}
             disabled={!autoCrawl}
-            onChange={(event: SelectChangeEvent<unknown>) => setType(event.target.value as string)}
+            displayEmpty
+            defaultValue=""
+            onChange={(event: SelectChangeEvent<string>) => {
+              if (event.target.value === 'WEEK') {
+                setCrawlDate('MONDAY')
+              } else {
+                setCrawlDate('1')
+              }
+              setCrawlType(event.target.value)
+            }}
+            value={crawlType}
           >
+            <MenuItem value="" disabled>
+              Select your crawl type
+            </MenuItem>
             {crawlOptions.map((option, index) => (
               <MenuItem key={index} value={option.value}>
                 {option.label}
@@ -46,7 +105,16 @@ const SettingLayout = () => {
 
         <FormControl sx={{ width: '50%' }}>
           <Typography variant="body1"></Typography>
-          <Select disabled={!autoCrawl} value={type === 'week' ? 0 : 1}>
+          <Select
+            defaultValue={''}
+            disabled={!autoCrawl}
+            displayEmpty
+            onChange={(event: SelectChangeEvent<string>) => setCrawlDate(event.target.value)}
+            value={crawlDate}
+          >
+            <MenuItem value="" disabled>
+              Select your crawl date
+            </MenuItem>
             {options.map((option, index) => (
               <MenuItem key={index} value={option.value}>
                 {option.label}
@@ -58,7 +126,16 @@ const SettingLayout = () => {
       <Box my={5} display={'flex'} gap={'1rem'}>
         <FormControl sx={{ width: '50%' }}>
           <Typography variant="body1">Crawl data on: </Typography>
-          <Select disabled={!autoCrawl} defaultValue={'00:00'}>
+          <Select
+            defaultValue=""
+            disabled={!autoCrawl}
+            displayEmpty
+            onChange={(event: SelectChangeEvent<string>) => setCrawlTime(event.target.value)}
+            value={crawlTime}
+          >
+            <MenuItem value="" disabled>
+              Select your crawl time
+            </MenuItem>
             {timeValue.map((option, index) => (
               <MenuItem key={index} value={option.value}>
                 {option.label}
@@ -73,6 +150,8 @@ const SettingLayout = () => {
           background: 'linear-gradient(195deg, rgb(102, 187, 106), rgb(67, 160, 71))',
           color: 'white'
         }}
+        onClick={handleUpdateSettings}
+        disabled={loading}
       >
         Save
       </Button>

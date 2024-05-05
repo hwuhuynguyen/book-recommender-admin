@@ -172,7 +172,7 @@ function Sidebar({ onToggleCollapse }: SidebarProps) {
               <ListItemIcon sx={{ color: 'white' }}>
                 <Settings />
               </ListItemIcon>
-              {!collapsed && <ListItemText className={styles['text-menu']} primary="Setting" />}
+              {!collapsed && <ListItemText className={styles['text-menu']} primary="Settings" />}
             </ListItem>
           </Link>
         </List>

@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow
 } from '@mui/material'
-import { IColumnTypes } from '../../../types/table.types'
+import { IColumnTypes } from '../../../types'
 
 interface DashboardTableProps {
   columns: IColumnTypes[]

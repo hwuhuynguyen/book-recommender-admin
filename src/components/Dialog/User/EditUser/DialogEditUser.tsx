@@ -17,7 +17,7 @@ import { toast } from 'react-toastify'
 import styles from './DialogEditUser.module.css'
 import { DatePicker } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs'
-import { IUser } from '../../../../types/user.types'
+import { IUser } from '../../../../types'
 import { UserApi } from '../../../../services'
 
 interface DialogEditUserProps {
@@ -52,7 +52,6 @@ const DialogEditUser = ({ onOpen, onClose, onUpdate, selectedUser }: DialogEditU
           avatar: selectedUser?.avatar,
           roleId: selectedUser?.role === 'ADMIN' ? 1 : 2
         }
-        console.log(currentUserData)
         await UserApi.updateUserById(selectedUser?.id ? selectedUser.id : '-1', currentUserData)
         toast.success('An user is updated successfully!')
         onClose()

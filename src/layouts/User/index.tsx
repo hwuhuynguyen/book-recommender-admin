@@ -12,8 +12,8 @@ import dayjs from 'dayjs'
 import { CommonDeleteDialog } from '../../components/Dialog/DeleteDialog/CommonDeleteDialog'
 import { removeEmptyFields } from '../../utils/function'
 import { UserApi } from '../../services'
-import { IUser } from '../../types/user.types'
 import { DialogEditUser } from '../../components/Dialog/User/EditUser'
+import { IUser } from '../../types'
 
 const UserLayout = ({ navigate, location }: any) => {
   const columns = [

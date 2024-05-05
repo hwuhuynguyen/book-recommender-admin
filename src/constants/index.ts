@@ -1,11 +1,11 @@
 export const weekValue = [
-  { value: 0, label: 'Monday' },
-  { value: 1, label: 'Tuesday' },
-  { value: 2, label: 'Wednesday' },
-  { value: 3, label: 'Thursday' },
-  { value: 4, label: 'Friday' },
-  { value: 5, label: 'Saturday' },
-  { value: 6, label: 'Sunday' }
+  { value: 'MONDAY', label: 'Monday' },
+  { value: 'TUESDAY', label: 'Tuesday' },
+  { value: 'WEDNESDAY', label: 'Wednesday' },
+  { value: 'THURSDAY', label: 'Thursday' },
+  { value: 'FRIDAY', label: 'Friday' },
+  { value: 'SATURDAY', label: 'Saturday' },
+  { value: 'SUNDAY', label: 'Sunday' }
 ]
 
 export const getMonthValue = () => {
@@ -16,27 +16,27 @@ export const getMonthValue = () => {
       case 21:
       case 31:
         data.push({
-          value: i,
+          value: i.toString(),
           label: 'The ' + i.toString() + 'st day of the month'
         })
         break
       case 2:
       case 22:
         data.push({
-          value: i,
+          value: i.toString(),
           label: 'The ' + i.toString() + 'nd day of the month'
         })
         break
       case 3:
       case 23:
         data.push({
-          value: i,
+          value: i.toString(),
           label: 'The ' + i.toString() + 'rd day of the month'
         })
         break
       default:
         data.push({
-          value: i,
+          value: i.toString(),
           label: 'The ' + i.toString() + 'th day of the month'
         })
     }
@@ -45,8 +45,8 @@ export const getMonthValue = () => {
 }
 
 export const crawlOptions = [
-  { value: 'week', label: 'By week' },
-  { value: 'month', label: 'By month' }
+  { value: 'WEEK', label: 'By week' },
+  { value: 'MONTH', label: 'By month' }
 ]
 
 export const timeOptions = (startTime: string, endTime: string, interval: number) => {

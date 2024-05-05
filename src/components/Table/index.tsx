@@ -17,7 +17,7 @@ import { useSearchParams } from 'react-router-dom'
 import noItem from '../../assets/noItem.png'
 import PersonAddAltSharpIcon from '@mui/icons-material/PersonAddAltSharp'
 import { MdDeleteSweep, MdEditSquare } from 'react-icons/md'
-import { IColumnTypes } from '../../types/table.types'
+import { IColumnTypes } from '../../types'
 
 interface ReusableTableProps {
   columns: IColumnTypes[]
