@@ -51,11 +51,11 @@ const DialogChangePassword = ({ open, setOpen }: ChangePasswordProps) => {
         await SelfApi.changePassword(passwordData)
 
         setError('')
-        toast.success('An user is created successfully!')
+        toast.success('Password is updated successfully!')
         handleClose()
       } catch (error: any) {
         setError(error?.message)
-        toast.error('An error occurred while adding new user!')
+        toast.error('An error occurred while changing password!')
       } finally {
         setLoading(false)
       }
