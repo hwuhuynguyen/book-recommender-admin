@@ -49,17 +49,6 @@ const BookLayout = ({ navigate, location }: any) => {
       }
     },
     {
-      id: 'language',
-      sortTable: true,
-      label: 'Language',
-      sortBy: 'language',
-      left: false,
-      style: {
-        filed: 'language',
-        width: '150px'
-      }
-    },
-    {
       id: 'releaseDate',
       sortTable: false,
       label: 'Release date',
@@ -67,17 +56,6 @@ const BookLayout = ({ navigate, location }: any) => {
       left: false,
       style: {
         filed: 'releaseDate',
-        width: '150px'
-      }
-    },
-    {
-      id: 'bookCover',
-      sortTable: true,
-      label: 'Book cover',
-      sortBy: 'bookCover',
-      left: false,
-      style: {
-        filed: 'bookCover',
         width: '150px'
       }
     },
