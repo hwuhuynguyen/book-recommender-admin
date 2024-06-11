@@ -6,12 +6,12 @@ import { useCallback, useRef, useState } from 'react'
 import { useEffect } from 'react'
 import { createSearchParams, useSearchParams } from 'react-router-dom'
 import useDebounce from '../../hooks/useDebounce'
-import { Button, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import { CommonDeleteDialog } from '../../components/Dialog/DeleteDialog/CommonDeleteDialog'
 import { IBook } from '../../types'
-import { BookApi } from '../../services'
+import { BookApi, DashboardApi } from '../../services'
 import dayjs from 'dayjs'
-import { removeEmptyFields } from '../../utils/function'
+import { convertDateFormat, removeEmptyFields } from '../../utils/function'
 import { toast } from 'react-toastify'
 
 const BookLayout = ({ navigate, location }: any) => {
@@ -115,6 +115,8 @@ const BookLayout = ({ navigate, location }: any) => {
 
   const [warningMessage, setWarningMessage] = useState('')
   const [deleteRowData, setDeleteRowData] = useState<{ [key: string]: any }>()
+
+  const [latestDate, setLatestDate] = useState('')
 
   const isSetPageURL = useRef(false)
 
@@ -221,6 +223,23 @@ const BookLayout = ({ navigate, location }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceSearch, navigate, location.pathname, update])
 
+  useEffect(() => {
+    const getStatistics = async () => {
+      try {
+        const response = await DashboardApi.getCardStatistics()
+        const updatedCrawledDates = {
+          bookCrossing: response.data.crawledDays['Book Crossing'][0],
+          goodreads: response.data.crawledDays['GoodReads'][0],
+          thriftBooks: response.data.crawledDays['Thrift Books'][0]
+        }
+        setLatestDate(convertDateFormat(updatedCrawledDates.goodreads))
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getStatistics()
+  }, [])
+
   return (
     <>
       <Box sx={{ backgroundColor: 'white', padding: '1rem', borderRadius: '1rem', marginTop: '1rem' }}>
@@ -235,18 +254,8 @@ const BookLayout = ({ navigate, location }: any) => {
         >
           <Box sx={{ alignSelf: 'flex-start', marginBottom: '10px' }}>
             <Box sx={{ textAlign: 'center', paddingTop: '1rem', display: 'flex', alignItems: 'center' }}>
-              <Button
-                variant="contained"
-                onClick={() => {}}
-                style={{
-                  background: 'linear-gradient(195deg, rgb(102, 187, 106), rgb(67, 160, 71))',
-                  color: 'white'
-                }}
-              >
-                Crawl data
-              </Button>
               <Typography variant="caption" paddingLeft={'1rem'}>
-                Last updated on April 10, 2024.
+                Last updated on {latestDate.length > 0 ? latestDate : ''}.
               </Typography>
             </Box>
           </Box>

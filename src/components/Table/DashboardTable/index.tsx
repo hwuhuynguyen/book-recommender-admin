@@ -1,4 +1,5 @@
 import {
+  Box,
   Paper,
   Rating,
   Skeleton,
@@ -65,8 +66,10 @@ function DashboardTable({ columns, rows, loading }: DashboardTableProps) {
                   <TableCell key={colIndex} component="td" scope="row">
                     {Object.values(column).indexOf('Id') > -1 ? (
                       rowIndex + 1
-                    ) : Object.values(column).indexOf('rating') > -1 ? (
-                      <Rating readOnly defaultValue={row[column.id]} precision={0.1} />
+                    ) : Object.values(column).indexOf('averageRating') > -1 ? (
+                      <Box sx={{ alignItems: 'center', display: 'flex' }}>
+                        <Rating readOnly defaultValue={row[column.id]} precision={0.1} max={10} />({row[column.id]})
+                      </Box>
                     ) : (
                       row[column.id]
                     )}

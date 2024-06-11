@@ -14,8 +14,6 @@ Coded by www.creative-tim.com
 */
 
 const reportsBarChartData = {
-  // labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-  // datasets: { label: 'Sales', data: [50, 20, 10, 22, 50, 10, 40] },
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   datasets: { label: 'Books', data: [50, 20, 10, 22, 50, 10, 40, 10, 20, 60, 5, 65] }
 }

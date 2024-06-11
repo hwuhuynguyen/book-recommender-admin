@@ -66,6 +66,7 @@ const SettingLayout = () => {
     <Box sx={{ backgroundColor: 'white', padding: '1rem', borderRadius: '1rem', marginTop: '1rem' }}>
       <Box display={'flex'} alignItems={'center'}>
         <Switch
+          disabled={true}
           checked={autoCrawl}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setAutoCrawl(event.target.checked)
@@ -79,7 +80,8 @@ const SettingLayout = () => {
       <Box display={'flex'} gap={'1rem'}>
         <FormControl sx={{ width: '50%' }}>
           <Select
-            disabled={!autoCrawl}
+            // disabled={!autoCrawl}
+            disabled={true}
             displayEmpty
             defaultValue=""
             onChange={(event: SelectChangeEvent<string>) => {
@@ -107,7 +109,8 @@ const SettingLayout = () => {
           <Typography variant="body1"></Typography>
           <Select
             defaultValue={''}
-            disabled={!autoCrawl}
+            // disabled={!autoCrawl}
+            disabled={true}
             displayEmpty
             onChange={(event: SelectChangeEvent<string>) => setCrawlDate(event.target.value)}
             value={crawlDate}
@@ -128,7 +131,8 @@ const SettingLayout = () => {
           <Typography variant="body1">Crawl data on: </Typography>
           <Select
             defaultValue=""
-            disabled={!autoCrawl}
+            // disabled={!autoCrawl}
+            disabled={true}
             displayEmpty
             onChange={(event: SelectChangeEvent<string>) => setCrawlTime(event.target.value)}
             value={crawlTime}
