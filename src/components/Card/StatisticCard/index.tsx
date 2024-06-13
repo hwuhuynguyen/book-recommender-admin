@@ -15,7 +15,7 @@ const StatisticCard = ({ title, data, trend }: StatisticCardProps) => {
           <Typography variant="button" fontWeight="light" color="text">
             {title}
           </Typography>
-          <Typography variant="h4">{data}</Typography>
+          <Typography variant="h4">{title.startsWith('CTR') ? (data * 100).toFixed(2) + '%' : data}</Typography>
         </Box>
       </Box>
       <Divider />

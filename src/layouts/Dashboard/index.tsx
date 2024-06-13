@@ -80,6 +80,16 @@ const DashboardLayout = () => {
     female: 0,
     other: 0
   })
+  const [ctrIndexes, setCtrIndexes] = useState({
+    contentBased: 0,
+    collaborative: 0
+  })
+  const [clicksImpressions, setClicksImpressions] = useState({
+    clicksContentBased: 0,
+    clicksCollaborative: 0,
+    impressionsContentBased: 0,
+    impressionsCollaborative: 0
+  })
   const [numberOfUsers, setNumberOfUsers] = useState<number>(0)
   const [crawlData, setCrawlData] = useState<number[]>([])
   const [loading, setLoading] = useState({
@@ -189,6 +199,36 @@ const DashboardLayout = () => {
         console.log(err)
       }
     }
+    const getCTRIndexes = async () => {
+      try {
+        const response = await DashboardApi.getCTR()
+
+        const updatedCTRIndexes = {
+          contentBased: response.data.CTR_CONTENT_BASED || 0,
+          collaborative: response.data.CTR_COLLABORATIVE || 0
+        }
+        const updatedClicksImpressions = {
+          clicksContentBased: response.data.totalContentBasedClicks,
+          clicksCollaborative: response.data.totalCollaborativeClicks,
+          impressionsContentBased: response.data.totalContentBasedImpressions,
+          impressionsCollaborative: response.data.totalCollaborativeImpressions
+        }
+        setCtrIndexes(updatedCTRIndexes)
+        setClicksImpressions(updatedClicksImpressions)
+      } catch (err) {
+        setCtrIndexes({
+          contentBased: 0,
+          collaborative: 0
+        })
+        setClicksImpressions({
+          clicksContentBased: 0,
+          clicksCollaborative: 0,
+          impressionsContentBased: 0,
+          impressionsCollaborative: 0
+        })
+      }
+    }
+    getCTRIndexes()
     getStatistics()
     getGenderDistribution()
     getTopRatedBooks()
@@ -211,15 +251,21 @@ const DashboardLayout = () => {
   return (
     <>
       <Grid container spacing={3} my={0}>
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={3}>
           <StatisticCard
             title="Total books"
             data={numberOfBooks.bookCrossing + numberOfBooks.thriftBooks + numberOfBooks.goodreads}
             trend={9}
           />
         </Grid>
-        <Grid item xs={12} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={3}>
           <StatisticCard title="Total users" data={numberOfUsers} trend={3} />
+        </Grid>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatisticCard title="CTR for Content-based model" data={ctrIndexes.contentBased} trend={3} />
+        </Grid>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatisticCard title="CTR for Collaborative model" data={ctrIndexes.collaborative} trend={3} />
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
           <StatisticCard title="Books from BookCrossing" data={numberOfBooks.bookCrossing} trend={12} />
@@ -250,6 +296,54 @@ const DashboardLayout = () => {
             />
           </Box>
         </Grid>
+        <Grid item xs={12} md={6} lg={6}>
+          <Box>
+            <Typography variant="body1" mb={0.5} textAlign={'center'}>
+              Clicks and Impressions by models
+            </Typography>
+            <Bar
+              className=""
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top' as const
+                  }
+                },
+                interaction: {
+                  intersect: false
+                },
+                scales: {
+                  x: {
+                    stacked: true
+                  },
+                  y: {
+                    stacked: true
+                  }
+                }
+              }}
+              data={{
+                labels: ['Content-based model', 'Collaborative model'],
+                datasets: [
+                  {
+                    label: 'Clicks',
+                    data: [clicksImpressions.clicksContentBased, clicksImpressions.clicksCollaborative],
+                    backgroundColor: '#DD761C',
+                    stack: 'Stack 0'
+                  },
+
+                  {
+                    label: 'Impressions',
+                    data: [clicksImpressions.impressionsContentBased, clicksImpressions.impressionsCollaborative],
+                    backgroundColor: '#6DC5D1',
+                    stack: 'Stack 1'
+                  }
+                ]
+              }}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={6} lg={2}></Grid>
         <Grid item xs={12} md={6} lg={3}>
           <Box>
             <Typography variant="body1" mb={0.5} textAlign={'center'}>
@@ -272,6 +366,8 @@ const DashboardLayout = () => {
             />
           </Box>
         </Grid>
+        <Grid item xs={12} md={6} lg={2}></Grid>
+
         <Grid item xs={12} md={6} lg={3}>
           <Box>
             <Typography variant="body1" mb={0.5} textAlign={'center'}>

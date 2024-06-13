@@ -12,8 +12,13 @@ const getCrawlStatistics = () => {
   return instance.get('/dashboard/monthly-crawl-statistics')
 }
 
+const getCTR = () => {
+  return instance.get('/dashboard/ctr')
+}
+
 export const DashboardApi = {
   getCardStatistics,
   getUserStatistics,
-  getCrawlStatistics
+  getCrawlStatistics,
+  getCTR
 }
