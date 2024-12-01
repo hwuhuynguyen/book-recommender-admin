@@ -131,8 +131,8 @@ const SettingLayout = () => {
           <Typography variant="body1">Crawl data on: </Typography>
           <Select
             defaultValue=""
-            // disabled={!autoCrawl}
-            disabled={true}
+            disabled={!autoCrawl}
+            // disabled={true}
             displayEmpty
             onChange={(event: SelectChangeEvent<string>) => setCrawlTime(event.target.value)}
             value={crawlTime}
